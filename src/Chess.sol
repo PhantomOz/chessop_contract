@@ -64,8 +64,16 @@ contract Chess {
         s_idToGames[_gameId] = _game;
         return _gameId;
     }
-    // function move() external {}
+
+    function move(
+        bytes32 _gameId,
+        string calldata _fen
+    ) external isParticipant(_gameId) isGameOn(_gameId) isTurn(_gameId) {
+        if (s_idToGames[_gameId].gameExists) {
+            s_idToGames[_gameId].moves = _fen;
+        }
+    }
     // function _isGameOver() internal {}
     // function resign() external {}
-    // function getGameBoard() external {}
+    // function getGame() external {}
 }
