@@ -1,13 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract Chess {
+import {ERC2771Context} from "@openzeppelin/contracts/metatx/ERC2771Context.sol";
+
+error Chess__GameDoesNotExist();
+error Chess__NotAParticipant();
+error Chess__GameEnded();
+
+contract Chess is ERC2771Context {
+
     mapping(bytes32 => Game) private s_idToGames;
+
+
+    constructor(address _trustedForwarder) ERC2771Context(_trustedForwarder) {}
 
     enum GameType {
         Single,
         Multiplayer,
         Staking
+    }
+
+    enum GameStatus {
+        Open,
+        Aborted,
+        Draw,
+        CheckMate,
     }
 
     enum BotLevel {
@@ -20,12 +37,47 @@ contract Chess {
         GameType mode;
         address[2] participants;
         BotLevel bot;
+        GameStatus status;
+        address winner;
         string turn;
         string moves;
         string white;
         string black;
         uint256 createdAt;
         bool gameExists;
+    }
+
+    modifier doesGameExist(bytes32 _gameId) {
+        if (!s_idToGames[_gameId].gameExists) {
+            revert Chess__GameDoesNotExist();
+        }
+        _;
+    }
+
+    modifier isParticipant(bytes32 _gameId) {
+        if (
+            s_idToGames[_gameId].partipants[0] != msg.sender &&
+            s_idToGames[_gameId].partipants[1] != msg.sender
+        ) {
+            revert Chess__NotAParticipant();
+        }
+        _;
+    }
+
+    modifier isGameOn(bytes32 _gameId) {
+        if(s_idToGames[_gameId].status != GameStatus.Open){
+            revert Chess__GameEnded();
+        }
+        _;
+    }
+
+    modifier isTurn(bytes32 _gameId) {
+        if(s_idToGames[_gameId].turn == "w"){
+            (_user) = abi.decode(bytes(s_idToGames[_gameId].white), )
+            if()
+        }
+        if(s_idToGames[_gameId].turn == "b"){}
+        _;
     }
 
     function createGame(
@@ -68,7 +120,13 @@ contract Chess {
     function move(
         bytes32 _gameId,
         string calldata _fen
-    ) external isParticipant(_gameId) isGameOn(_gameId) isTurn(_gameId) {
+    )
+        external
+        doesGameExist(_gameId)
+        isParticipant(_gameId)
+        isGameOn(_gameId)
+        isTurn(_gameId)
+    {
         if (s_idToGames[_gameId].gameExists) {
             s_idToGames[_gameId].moves = _fen;
         }
