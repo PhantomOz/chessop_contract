@@ -10,6 +10,7 @@ error Chess__GameEnded();
 contract Chess is ERC2771Context {
 
     mapping(bytes32 => Game) private s_idToGames;
+    mapping(bytes32 => mapping(uint8 => string[2])) private s_moves;
 
 
     constructor(address _trustedForwarder) ERC2771Context(_trustedForwarder) {}
@@ -40,7 +41,7 @@ contract Chess is ERC2771Context {
         GameStatus status;
         address winner;
         string turn;
-        string moves;
+        string board;
         string white;
         string black;
         uint256 createdAt;
@@ -55,9 +56,10 @@ contract Chess is ERC2771Context {
     }
 
     modifier isParticipant(bytes32 _gameId) {
+        
         if (
-            s_idToGames[_gameId].partipants[0] != msg.sender &&
-            s_idToGames[_gameId].partipants[1] != msg.sender
+            s_idToGames[_gameId].partipants[0] != _msgSender() &&
+            s_idToGames[_gameId].partipants[1] != _msgSender()
         ) {
             revert Chess__NotAParticipant();
         }
@@ -73,7 +75,7 @@ contract Chess is ERC2771Context {
 
     modifier isTurn(bytes32 _gameId) {
         if(s_idToGames[_gameId].turn == "w"){
-            (_user) = abi.decode(bytes(s_idToGames[_gameId].white), )
+            (_user) = abi.decode(bytes(s_idToGames[_gameId].white), (address))
             if()
         }
         if(s_idToGames[_gameId].turn == "b"){}
@@ -88,26 +90,26 @@ contract Chess is ERC2771Context {
         address[2] memory _participants;
         Game memory _game;
         if (_mode == GameType.Single) {
-            _participants[0] = msg.sender;
+            _participants[0] = _msgSender();
             _game.mode = _mode;
             _game.participants = _participants;
             _game.bot = _bot;
             _game.turn = "w";
-            _game.moves = "";
-            _game.white = string(abi.encodePacked(msg.sender));
+            _game.board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            _game.white = string(abi.encodePacked(_msgSender()));
             _game.black = string(abi.encodePacked(_mode));
             _game.createdAt = block.timestamp;
             _game.gameExists = true;
         }
         if (_mode == GameType.Multiplayer) {
-            _participants[0] = msg.sender;
+            _participants[0] = _msgSender();
             _participants[1] = _participant;
             _game.mode = _mode;
             _game.participants = _participants;
             _game.bot = _bot;
             _game.turn = "w";
-            _game.moves = "";
-            _game.white = string(abi.encodePacked(msg.sender));
+            _game.board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            _game.white = string(abi.encodePacked(_msgSender()));
             _game.black = string(abi.encodePacked(_participant));
             _game.createdAt = block.timestamp;
             _game.gameExists = true;
@@ -119,7 +121,9 @@ contract Chess is ERC2771Context {
 
     function move(
         bytes32 _gameId,
-        string calldata _fen
+        string calldata _fen,
+        uint8 _halfMove,
+        string calldata _move
     )
         external
         doesGameExist(_gameId)
@@ -127,9 +131,9 @@ contract Chess is ERC2771Context {
         isGameOn(_gameId)
         isTurn(_gameId)
     {
-        if (s_idToGames[_gameId].gameExists) {
-            s_idToGames[_gameId].moves = _fen;
-        }
+        s_idToGames[_gameId].board = _fen;
+        s_moves[_gameId][_halfMove].push(_move);
+        
     }
     // function _isGameOver() internal {}
     // function resign() external {}
