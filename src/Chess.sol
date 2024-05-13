@@ -6,6 +6,7 @@ import {ERC2771Context} from "@openzeppelin/contracts/metatx/ERC2771Context.sol"
 error Chess__GameDoesNotExist();
 error Chess__NotAParticipant();
 error Chess__GameEnded();
+error Chess__InvalidMove();
 
 contract Chess is ERC2771Context {
 
@@ -77,9 +78,16 @@ contract Chess is ERC2771Context {
     modifier isTurn(bytes32 _gameId) {
         if(s_idToGames[_gameId].turn == "w"){
             (_user) = abi.decode(bytes(s_idToGames[_gameId].white), (address))
-            if()
+            if(_user != _msgSender()){
+                revert Chess__InvalidMove();
+            }
         }
-        if(s_idToGames[_gameId].turn == "b"){}
+        if(s_idToGames[_gameId].turn == "b"){
+             (_user) = abi.decode(bytes(s_idToGames[_gameId].black), (address))
+            if(_user != _msgSender()){
+                revert Chess__InvalidMove();
+            }
+        }
         _;
     }
 
