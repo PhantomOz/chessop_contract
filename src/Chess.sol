@@ -9,10 +9,8 @@ error Chess__GameEnded();
 error Chess__InvalidMove();
 
 contract Chess is ERC2771Context {
-
     mapping(bytes32 => Game) private s_idToGames;
-    mapping(bytes32 => mapping(uint8 => string[2])) private s_moves;
-
+    mapping(bytes32 => mapping(uint8 => string[])) public s_moves;
 
     constructor(address _trustedForwarder) ERC2771Context(_trustedForwarder) {}
 
@@ -27,7 +25,7 @@ contract Chess is ERC2771Context {
         Aborted,
         Draw,
         Resign,
-        CheckMate,
+        CheckMate
     }
 
     enum BotLevel {
@@ -58,10 +56,9 @@ contract Chess is ERC2771Context {
     }
 
     modifier isParticipant(bytes32 _gameId) {
-        
         if (
-            s_idToGames[_gameId].partipants[0] != _msgSender() &&
-            s_idToGames[_gameId].partipants[1] != _msgSender()
+            s_idToGames[_gameId].participants[0] != _msgSender() &&
+            s_idToGames[_gameId].participants[1] != _msgSender()
         ) {
             revert Chess__NotAParticipant();
         }
@@ -69,22 +66,32 @@ contract Chess is ERC2771Context {
     }
 
     modifier isGameOn(bytes32 _gameId) {
-        if(s_idToGames[_gameId].status != GameStatus.Open){
+        if (s_idToGames[_gameId].status != GameStatus.Open) {
             revert Chess__GameEnded();
         }
         _;
     }
 
     modifier isTurn(bytes32 _gameId) {
-        if(s_idToGames[_gameId].turn == "w"){
-            (_user) = abi.decode(bytes(s_idToGames[_gameId].white), (address))
-            if(_user != _msgSender()){
+        if (
+            keccak256(bytes(s_idToGames[_gameId].turn)) == keccak256(bytes("w"))
+        ) {
+            address user = abi.decode(
+                bytes(s_idToGames[_gameId].white),
+                (address)
+            );
+            if (user != _msgSender()) {
                 revert Chess__InvalidMove();
             }
         }
-        if(s_idToGames[_gameId].turn == "b"){
-             (_user) = abi.decode(bytes(s_idToGames[_gameId].black), (address))
-            if(_user != _msgSender()){
+        if (
+            keccak256(bytes(s_idToGames[_gameId].turn)) == keccak256(bytes("b"))
+        ) {
+            address user = abi.decode(
+                bytes(s_idToGames[_gameId].black),
+                (address)
+            );
+            if (user != _msgSender()) {
                 revert Chess__InvalidMove();
             }
         }
@@ -104,7 +111,8 @@ contract Chess is ERC2771Context {
             _game.participants = _participants;
             _game.bot = _bot;
             _game.turn = "w";
-            _game.board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            _game
+                .board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             _game.white = string(abi.encodePacked(_msgSender()));
             _game.black = string(abi.encodePacked(_mode));
             _game.createdAt = block.timestamp;
@@ -117,7 +125,8 @@ contract Chess is ERC2771Context {
             _game.participants = _participants;
             _game.bot = _bot;
             _game.turn = "w";
-            _game.board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            _game
+                .board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             _game.white = string(abi.encodePacked(_msgSender()));
             _game.black = string(abi.encodePacked(_participant));
             _game.createdAt = block.timestamp;
@@ -142,27 +151,43 @@ contract Chess is ERC2771Context {
     {
         s_idToGames[_gameId].board = _fen;
         s_moves[_gameId][_halfMove].push(_move);
-        
     }
 
-    function endGame(bytes32 _gameId, GameStatus _status) external doesGameExist(_gameId) isParticipant(_gameId) isGameOn(_gameId) {
-        if(_status == GameStatus.Resign){
-            if(s_idToGames[_gameId].participants[0] == _msgSender()){
-             s_idToGames[_gameId].winner = address(s_idToGames[_gameId].participants[1])   
-            }else{
-                s_idToGames[_gameId].winner = address(s_idToGames[_gameId].participants[0])
+    function endGame(
+        bytes32 _gameId,
+        GameStatus _status
+    ) external doesGameExist(_gameId) isParticipant(_gameId) isGameOn(_gameId) {
+        if (_status == GameStatus.Resign) {
+            if (s_idToGames[_gameId].participants[0] == _msgSender()) {
+                s_idToGames[_gameId].winner = address(
+                    s_idToGames[_gameId].participants[1]
+                );
+            } else {
+                s_idToGames[_gameId].winner = address(
+                    s_idToGames[_gameId].participants[0]
+                );
             }
-        }if (_status == GameStatus.CheckMate) {
-            s_idToGames[_gameId].winner = address(_msgSender);
+        }
+        if (_status == GameStatus.CheckMate) {
+            s_idToGames[_gameId].winner = address(_msgSender());
         }
         s_idToGames[_gameId].status = _status;
     }
 
-    function getGame(bytes32 _gameId) external doesGameExist(_gameId) view  returns(Game memory _game){
+    function getGame(
+        bytes32 _gameId
+    ) external view doesGameExist(_gameId) returns (Game memory _game) {
         _game = s_idToGames[_gameId];
     }
 
-    function getMoves(bytes32 _gameId) external view doesGameExist(_gameId) returns(mapping(uint8 => string[2]) memory) {
-        return s_moves[_gameId];
-    }
+    // function getMoves(
+    //     bytes32 _gameId
+    // )
+    //     external
+    //     view
+    //     doesGameExist(_gameId)
+    //     returns (mapping(uint8 => string[]) memory _moves)
+    // {
+    //     _moves = s_moves[_gameId];
+    // }
 }
