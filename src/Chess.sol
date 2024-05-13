@@ -150,7 +150,11 @@ contract Chess is ERC2771Context {
         s_idToGames[_gameId].status = _status;
     }
 
-    function getGame(bytes32 _gameId) external doesGameExist(_gameId) view  return(Game memory _game){
+    function getGame(bytes32 _gameId) external doesGameExist(_gameId) view  returns(Game memory _game){
         _game = s_idToGames[_gameId];
+    }
+
+    function getMoves(bytes32 _gameId) external view doesGameExist(_gameId) returns(mapping(uint8 => string[2]) memory) {
+        return s_moves[_gameId];
     }
 }
