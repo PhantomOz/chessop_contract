@@ -25,6 +25,7 @@ contract Chess is ERC2771Context {
         Open,
         Aborted,
         Draw,
+        Resign,
         CheckMate,
     }
 
@@ -135,7 +136,18 @@ contract Chess is ERC2771Context {
         s_moves[_gameId][_halfMove].push(_move);
         
     }
-    // function _isGameOver() internal {}
-    // function resign() external {}
+
+    function endGame(bytes32 _gameId, GameStatus _status) external doesGameExist(_gameId) isParticipant(_gameId) isGameOn(_gameId) {
+        if(_status == GameStatus.Resign){
+            if(s_idToGames[_gameId].participants[0] == _msgSender()){
+             s_idToGames[_gameId].winner = address(s_idToGames[_gameId].participants[1])   
+            }else{
+                s_idToGames[_gameId].winner = address(s_idToGames[_gameId].participants[0])
+            }
+        }if (_status == GameStatus.CheckMate) {
+            s_idToGames[_gameId].winner = address(_msgSender);
+        }
+        s_idToGames[_gameId].status = _status;
+    }
     // function getGame() external {}
 }
