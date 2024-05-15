@@ -39,8 +39,7 @@ Welcome to ChessUp,our decentralized chess game built on the Lisk Superchain. Th
   
 ## Documentation
 
-https://app.gitbook.com/o/UagPAFrFmRae2kiEmzji/s/3qFkCFescvySAZg69DMV/
-
+[Click here](https://app.gitbook.com/o/UagPAFrFmRae2kiEmzji/s/3qFkCFescvySAZg69DMV/)
 ## Future Plans
 ## Tools
 
