@@ -35,6 +35,7 @@ Welcome to ChessUp,our decentralized chess game built on the Lisk Superchain. Th
 
 * When it's your turn, decide whether to continue playing or end the game.
 * Clicking the endGame button and specify the game's final status which is Resign or Checkmate.
+* if you Checkmate an NFT will be minted to your address
 * Confirm the transaction to finalize the game.
   
 ## Documentation
