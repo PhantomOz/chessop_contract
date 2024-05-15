@@ -40,13 +40,6 @@ Welcome to ChessUp,our decentralized chess game built on the Lisk Superchain. Th
 ## Documentation
 
 [Click here for a technical documentation of the chessOP game contracts](https://app.gitbook.com/o/UagPAFrFmRae2kiEmzji/s/3qFkCFescvySAZg69DMV/)
-
-## Future Plans
-
-As we move on from the hackathon we plan to add more functionalities like
-* improved gameplay
-* enabling the Stake Function where players can use our in game currency to play,stake and place wagers amongst themselves
-* taking the computation off Lisk and creating a sub-Chain to handle it so as to make the game seamless
   
 ## Tools
 * [Foundry](https://book.getfoundry.sh/)
@@ -60,10 +53,23 @@ As we move on from the hackathon we plan to add more functionalities like
 
 [You Can Find The ChessUp Frontend here](https://github.com/JeffreyJoel/chess-up) 
 
+  
+## Contributing
+
+Contributions to improve the game experience, enhance security, or add new features are welcome. Please feel free to reach out to any of the team members
+
+## Future Plans
+
+As we move on from the hackathon we plan to add more functionalities like
+* improved gameplay
+* enabling the Stake Function where players can use our in game currency to play,stake and place wagers amongst themselves
+* taking the computation off Lisk and creating a sub-Chain to handle it so as to make the game seamless
+
 ## Acknowledgements
 
 * Lisk Team
-* Team Chessup 
+* With Love From Team Chessup 
+
 
 [Jeffrey](https://github.com/JeffreyJoel) 
 
